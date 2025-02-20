@@ -14,8 +14,21 @@ services:
       - ./product_data:/product_data
      # - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - postgres_network
+      - ecommerce_network
+
+  api:
+    build: ./api
+    container_name: fastapi_app
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql+asyncpg://admin:admin@postgres/ecommerce_data
+    networks:
+      - ecommerce_network
+    ports:
+      - "8000:8000"
 
 networks:
-  postgres_network:
+  ecommerce_network:
     driver: bridge
