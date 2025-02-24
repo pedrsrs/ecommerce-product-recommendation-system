@@ -1,0 +1,43 @@
+<!-- product.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Your existing head content -->
+</head>
+<body>
+    <div id="product-details" class="container py-5">
+        <div class="row">
+            <div class="col-md-6">
+                <img id="product-image" class="img-fluid" style="max-height: 60vh; object-fit: contain;">
+            </div>
+            <div class="col-md-6">
+                <h1 id="product-title"></h1>
+                <p id="product-price" class="h4 text-danger mb-4"></p>
+                <p id="product-description" class="lead"></p>
+                <button class="btn btn-primary">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadProduct() {
+            const productId = window.location.pathname.split('/').pop();
+            
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                const product = await response.json();
+
+                document.getElementById('product-title').textContent = product.title;
+                document.getElementById('product-price').textContent = `$${product.price}`;
+                document.getElementById('product-description').textContent = product.description;
+                document.getElementById('product-image').src = product.image_large;
+            } catch (error) {
+                console.error('Error loading product:', error);
+                alert('Product not found');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProduct);
+    </script>
+</body>
+</html>

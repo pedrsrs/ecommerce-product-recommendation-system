@@ -32,22 +32,24 @@ function renderProducts(products) {
         let card = document.createElement("div");  
         card.className = "col mb-2";  
         card.innerHTML = `  
-            <div class="card h-100">  
-                <div class="ratio ratio-4x3">  
-                    <img src="${product.image_large}"   
-                         class="card-img-top"   
-                         alt="${product.title}"   
-                         style="object-fit: contain;">  
+            <a href="/api/product/${product.parent_asin}" class="card-link text-decoration-none text-dark">  
+                <div class="card h-100">  
+                    <div class="ratio ratio-4x3">  
+                        <img src="${product.image_large}"   
+                             class="card-img-top"   
+                             alt="${product.title}"   
+                             style="object-fit: contain;">  
+                    </div>  
+                    <div class="card-body p-2">  
+                        <h6 class="card-title fs-6 mb-1" title="${product.title}">${truncatedTitle}</h6>  
+                        <p class="card-text small mb-0"><strong>Price:</strong> $${product.price}</p>  
+                    </div>  
                 </div>  
-                <div class="card-body p-2">  
-                    <h6 class="card-title fs-6 mb-1" title="${product.title}">${truncatedTitle}</h6>  
-                    <p class="card-text small mb-0"><strong>Price:</strong> $${product.price}</p>  
-                </div>  
-            </div>  
+            </a>  
         `;  
         productList.appendChild(card);  
     });  
-}  
+}
 
 function handleScroll() {  
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {  

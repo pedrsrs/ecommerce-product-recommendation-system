@@ -24,6 +24,8 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgresql+asyncpg://admin:admin@postgres/ecommerce_data
+    volumes:
+      - ./api/app/static:/app/static 
     networks:
       - ecommerce_network
     ports:

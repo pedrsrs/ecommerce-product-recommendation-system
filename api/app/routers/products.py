@@ -3,12 +3,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from sqlalchemy import and_
 from typing import List
+from fastapi.responses import FileResponse
+from pathlib import Path
 
 from ..db import get_db
 from ..models import Product, ProductImage
 from ..schemas import ProductSearchSchema, ProductRead
 
+
 router = APIRouter()
+
+@router.get("/product/{product_id}")
+async def product_page(product_id: str):
+    return FileResponse(Path("static/product.html"))
 
 @router.get("/products/search", response_model=List[ProductRead])
 async def search_products(
