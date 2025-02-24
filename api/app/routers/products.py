@@ -1,20 +1,34 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
+from sqlalchemy import and_
 from typing import List
 
 from ..db import get_db
-from ..models import Product
-from ..schemas import ProductSearchSchema
+from ..models import Product, ProductImage
+from ..schemas import ProductSearchSchema, ProductRead
 
 router = APIRouter()
 
-@router.get("/products/search", response_model=List[Product])
+@router.get("/products/search", response_model=List[ProductRead])
 async def search_products(
-    search_params: ProductSearchSchema = Depends(), 
-    db: AsyncSession = Depends(get_db)
+    search_params: ProductSearchSchema = Depends(),
+    db: AsyncSession = Depends(get_db),
+    page: int = Query(1, ge=1),  
+    limit: int = Query(50, le=100)  
 ):
-    query = select(Product)
+    offset = (page - 1) * limit  
+
+    query = (
+        select(Product, ProductImage.large)
+        .outerjoin(
+            ProductImage,
+            and_(
+                Product.parent_asin == ProductImage.parent_asin,
+                ProductImage.variant == "MAIN"
+            )
+        )
+    )
 
     if search_params.title:
         query = query.where(Product.title.ilike(f"%{search_params.title}%"))
@@ -25,19 +39,38 @@ async def search_products(
     if search_params.max_price is not None:
         query = query.where(Product.price <= search_params.max_price)
 
-    if search_params.limit is not None:
-        if search_params.limit > 100:
-                search_params.limit = 100
-        query = query.limit(search_params.limit)
+    query = query.limit(limit).offset(offset) 
 
     result = await db.execute(query)
-    return result.scalars().all()
+    items = result.all()
 
-@router.get("/products/{product_id}", response_model=Product)
+    return [
+        ProductRead(
+            **product.dict(),
+            image_large=image_large
+        )
+        for product, image_large in items
+    ]
+
+@router.get("/products/{product_id}", response_model=ProductRead)
 async def get_product(product_id: str, db: AsyncSession = Depends(get_db)):
-    query = select(Product).where(Product.parent_asin == product_id)
+    query = (
+        select(Product, ProductImage.large)
+        .outerjoin(
+            ProductImage,
+            and_(
+                Product.parent_asin == ProductImage.parent_asin,
+                ProductImage.variant == "MAIN"
+            )
+        )
+        .where(Product.parent_asin == product_id)
+    )
+
     result = await db.execute(query)
-    product = result.scalar_one_or_none()
-    if product is None:
+    item = result.first()
+    
+    if not item:
         raise HTTPException(status_code=404, detail="Product not found")
-    return product
+    
+    product, image_large = item
+    return ProductRead(**product.dict(), image_large=image_large)
