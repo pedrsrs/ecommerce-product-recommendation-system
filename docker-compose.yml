@@ -29,6 +29,15 @@ services:
     ports:
       - "8000:8000"
 
+  web:
+    build: ./web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    networks:
+      - ecommerce_network
+
 networks:
   ecommerce_network:
     driver: bridge
