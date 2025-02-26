@@ -1,32 +1,32 @@
-let currentPage = 1;  
+let current_page = 1;  
 const limit = 50; 
-let isLoading = false;  
+let is_loading = false;  
 
-async function fetchProducts() {  
-    if (isLoading) return;  
-    isLoading = true;  
+async function fetch_products() {  
+    if (is_loading) return;  
+    is_loading = true;  
 
     try {  
-        let response = await fetch(`/api/products/search?limit=${limit}&page=${currentPage}`);  
+        let response = await fetch(`/api/products/search?limit=${limit}&page=${current_page}`);  
         let data = await response.json();  
 
         if (data.length > 0) {  
-            renderProducts(data);  
-            currentPage++;  
+            render_products(data);  
+            current_page++;  
         }  
     } catch (error) {  
         console.error("Error fetching products:", error);  
     } finally {  
-        isLoading = false;  
+        is_loading = false;  
     }  
 }  
 
-function renderProducts(products) {  
-    let productList = document.getElementById("product-list");  
-    productList.className = "row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2";  
+function render_products(products) {  
+    let product_list = document.getElementById("product-list");  
+    product_list.className = "row row-cols-2 row-cols-md-3 row-cols-lg-5 g-2";  
 
     products.forEach(product => {  
-        let truncatedTitle = product.title.length > 40 ?  
+        let truncated_title = product.title.length > 40 ?  
             product.title.substring(0, 40) + "..." : product.title;  
 
         let card = document.createElement("div");  
@@ -41,23 +41,23 @@ function renderProducts(products) {
                              style="object-fit: contain;">  
                     </div>  
                     <div class="card-body p-2">  
-                        <h6 class="card-title fs-6 mb-1" title="${product.title}">${truncatedTitle}</h6>  
+                        <h6 class="card-title fs-6 mb-1" title="${product.title}">${truncated_title}</h6>  
                         <p class="card-text small mb-0"><strong>Price:</strong> $${product.price}</p>  
                     </div>  
                 </div>  
             </a>  
         `;  
-        productList.appendChild(card);  
+        product_list.appendChild(card);  
     });  
 }
 
-function handleScroll() {  
+function handle_scroll() {  
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {  
-        fetchProducts();  
+        fetch_products();  
     }  
 }  
 
 document.addEventListener("DOMContentLoaded", () => {  
-    fetchProducts();  
-    window.addEventListener("scroll", handleScroll);  
-});  
+    fetch_products();  
+    window.addEventListener("scroll", handle_scroll);  
+});

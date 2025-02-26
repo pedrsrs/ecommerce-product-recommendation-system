@@ -1,8 +1,13 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+
 from .routers import products
 from .db import engine, Base
 
 app = FastAPI(title="E-Commerce API")
+
+app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
 
 async def init_db():
     async with engine.begin() as conn:
